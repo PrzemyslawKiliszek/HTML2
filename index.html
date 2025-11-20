@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proton Pull - Realistische Elektronegativität</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #2a3a7c);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #a0c8f8;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
+        .atom-visualization {
+            flex: 1;
+            min-width: 350px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        
+        .atom-container {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin: 20px 0;
+            overflow: visible;
+        }
+        
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ffb347;
+            border-bottom: 2px solid #ffb347;
+            padding-bottom: 5px;
+        }
+        
+        .slider-container {
+            margin-bottom: 15px;
+        }
+        
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .slider-value {
+            font-weight: bold;
+            color: #ffb347;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #2a3a7c;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff7e5f;
+            cursor: pointer;
+        }
+        
+        .en-display {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 2px solid #ff7e5f;
+        }
+        
+        .en-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ff7e5f;
+            text-shadow: 0 0 10px rgba(255, 126, 95, 0.5);
+        }
+        
+        .en-label {
+            font-size: 1.2rem;
+            color: #a0c8f8;
+        }
+        
+        .comparison {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .comparison-item {
+            text-align: center;
+        }
+        
+        .comparison-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .low-en {
+            color: #5fa0ff;
+        }
+        
+        .high-en {
+            color: #ff5f5f;
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .action-button {
+            padding: 12px 20px;
+            font-size: 1.1rem;
+        }
+        
+        .add-electron {
+            background: linear-gradient(to right, #5fa0ff, #7ebcff);
+        }
+        
+        .remove-electron {
+            background: linear-gradient(to right, #ff5f5f, #ff7e7e);
+        }
+        
+        .electron-info {
+            margin-top: 15px;
+            text-align: center;
+            font-style: italic;
+            color: #a0c8f8;
+        }
+        
+        .explanation {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            width: 100%;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .explanation h2 {
+            color: #a0c8f8;
+            border-bottom: 2px solid #a0c8f8;
+        }
+        
+        .explanation p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .key-point {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .key-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .trend-arrow {
+            font-size: 1.5rem;
+            margin: 0 5px;
+        }
+        
+        .status-message {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .removing-electron {
+            animation: electronRemoval 0.5s ease-out;
+        }
+        
+        @keyframes electronRemoval {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .game-area {
+                flex-direction: column;
+            }
+            
+            .atom-visualization, .controls {
+                width: 100%;
+            }
+            
+            .atom-container {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Proton Pull - Realistische Werte</h1>
+            <p class="subtitle">Das Elektronegativitäts-Spiel mit echten EN-Werten</p>
+        </header>
+        
+        <div class="game-area">
+            <div class="atom-visualization">
+                <div class="status-message" id="statusMessage"></div>
+                <h2>Atom Visualisierung</h2>
+                <div class="atom-container">
+                    <canvas id="atomCanvas" width="350" height="350"></canvas>
+                </div>
+                <div class="en-display">
+                    <div class="en-value" id="enValue">3.98</div>
+                    <div class="en-label">Elektronegativität</div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-button add-electron" id="addElectronBtn">Elektron hinzufügen</button>
+                    <button class="action-button remove-electron" id="removeElectronBtn">Elektron entfernen</button>
+                </div>
+                <div class="electron-info" id="electronInfo">Valenzelektronen: 9</div>
+            </div>
+            
+            <div class="controls">
+                <h2>Atom-Eigenschaften</h2>
+                
+                <div class="control-group">
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Kernladung (Protonen)</span>
+                            <span class="slider-value" id="protonValue">9</span>
+                        </div>
+                        <input type="range" id="protonSlider" min="1" max="55" value="9" step="1">
+                    </div>
+                    
+                    <div class="slider-container">
+                        <div class="slider-label">
+                            <span>Anzahl der Schalen</span>
+                            <span class="slider-value" id="shellValue">2</span>
+                        </div>
+                        <input type="range" id="shellSlider" min="1" max="6" value="2" step="1">
+                    </div>
+                </div>
+                
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-value low-en">0.79</div>
+                        <div class="comparison-label">Cäsium (niedrig)</div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-value high-en">3.98</div>
+                        <div class="comparison-label">Fluor (hoch)</div>
+                    </div>
+                </div>
+                
+                <h2>Voreinstellungen</h2>
+                <div class="preset-buttons">
+                    <button id="presetHydrogen">Wasserstoff (H)</button>
+                    <button id="presetCarbon">Kohlenstoff (C)</button>
+                    <button id="presetOxygen">Sauerstoff (O)</button>
+                    <button id="presetFluorine">Fluor (F)</button>
+                    <button id="presetSodium">Natrium (Na)</button>
+                    <button id="presetChlorine">Chlor (Cl)</button>
+                    <button id="presetPotassium">Kalium (K)</button>
+                    <button id="presetCesium">Cäsium (Cs)</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h2>Wie funktioniert Elektronegativität?</h2>
+            <p>Elektronegativität ist die Fähigkeit eines Atoms, in einer chemischen Bindung Elektronen anzuziehen.</p>
+            
+            <div class="key-point">
+                <div class="key-icon">👑</div>
+                <div>
+                    <strong>Kernladung:</strong> Mehr Protonen = stärkere Anziehungskraft
+                    <span class="trend-arrow">→</span> Höhere EN
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <div class="key-icon">🛡️</div>
+                <div>
+                    <strong>Elektronenschalen:</strong> Mehr Schalen = Elektronen sind weiter weg
+                    <span class="trend-arrow">→</span> Niedrigere EN
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <div class="key-icon">➕</div>
+                <div>
+                    <strong>Elektron hinzufügen:</strong> Atome mit hoher EN ziehen Elektronen schnell an, Cäsium nur schwach.
+                </div>
+            </div>
+            
+            <div class="key-point">
+                <div class="key-icon">➖</div>
+                <div>
+                    <strong>Elektron entfernen:</strong> Bei Cäsium ist es leicht, bei Fluor fast unmöglich.
+                </div>
+            </div>
+            
+            <p><strong>Spieltipp:</strong> Probiere verschiedene Kombinationen aus und teste die neuen Funktionen!</p>
+        </div>
+    </div>
+
+    <script>
+        // Canvas und Kontext
+        const canvas = document.getElementById('atomCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI-Elemente
+        const protonSlider = document.getElementById('protonSlider');
+        const shellSlider = document.getElementById('shellSlider');
+        const protonValue = document.getElementById('protonValue');
+        const shellValue = document.getElementById('shellValue');
+        const enValue = document.getElementById('enValue');
+        const addElectronBtn = document.getElementById('addElectronBtn');
+        const removeElectronBtn = document.getElementById('removeElectronBtn');
+        const electronInfo = document.getElementById('electronInfo');
+        const statusMessage = document.getElementById('statusMessage');
+        
+        // Realistische EN-Werte für Elemente
+        const realENValues = {
+            1: 2.20,   // Wasserstoff
+            3: 0.98,   // Lithium
+            4: 1.57,   // Beryllium
+            5: 2.04,   // Bor
+            6: 2.55,   // Kohlenstoff
+            7: 3.04,   // Stickstoff
+            8: 3.44,   // Sauerstoff
+            9: 3.98,   // Fluor
+            11: 0.93,  // Natrium
+            12: 1.31,  // Magnesium
+            13: 1.61,  // Aluminium
+            14: 1.90,  // Silicium
+            15: 2.19,  // Phosphor
+            16: 2.58,  // Schwefel
+            17: 3.16,  // Chlor
+            19: 0.82,  // Kalium
+            20: 1.00,  // Calcium
+            35: 2.96,  // Brom
+            55: 0.79   // Cäsium
+        };
+        
+        // Voreinstellungen mit realistischen EN-Werten
+        const presetButtons = {
+            presetHydrogen: { protons: 1, shells: 1 },
+            presetCarbon: { protons: 6, shells: 2 },
+            presetOxygen: { protons: 8, shells: 2 },
+            presetFluorine: { protons: 9, shells: 2 },
+            presetSodium: { protons: 11, shells: 3 },
+            presetChlorine: { protons: 17, shells: 3 },
+            presetPotassium: { protons: 19, shells: 4 },
+            presetCesium: { protons: 55, shells: 6 }
+        };
+        
+        // Atom-Eigenschaften
+        let atom = {
+            protons: 9,
+            shells: 2,
+            valenceElectrons: 9,
+            animationTime: 0,
+            freeElectron: null,
+            removingElectron: false,
+            removalAnimationProgress: 0
+        };
+        
+        // Statusmeldung anzeigen
+        function showStatus(message, color) {
+            statusMessage.textContent = message;
+            statusMessage.style.color = color;
+            statusMessage.style.opacity = 1;
+            
+            setTimeout(() => {
+                statusMessage.style.opacity = 0;
+            }, 2000);
+        }
+        
+        // Realistische Elektronegativität berechnen
+        function calculateEN(protons, shells) {
+            // Verwendung der gespeicherten realen Werte falls vorhanden
+            if (realENValues[protons]) {
+                return realENValues[protons];
+            }
+            
+            // Für andere Elemente: realistischere Berechnung
+            // Berücksichtigt sowohl Kernladung als auch Schalenabstand
+            const effectiveNuclearCharge = protons - (shells > 1 ? (shells - 1) * 2 : 0);
+            const radiusFactor = 1 / (shells * shells);
+            
+            // Realistischere Skalierung basierend auf Pauling-Skala
+            let enValue = 0.5 + (effectiveNuclearCharge * radiusFactor * 0.7);
+            
+            // Begrenzung auf realistische Werte
+            return Math.min(4.0, Math.max(0.5, enValue));
+        }
+        
+        // Atom zeichnen
+        function drawAtom() {
+            // Canvas löschen
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            // Elektronegativität berechnen
+            const en = calculateEN(atom.protons, atom.shells);
+            enValue.textContent = en.toFixed(2);
+            
+            // Dynamische Skalierung basierend auf Schalenanzahl
+            const maxShellRadius = 130;
+            const baseRadius = 30;
+            const shellSpacing = (maxShellRadius - baseRadius) / 6;
+            
+            // Kern zeichnen - Größe und Farbe basierend auf Protonenanzahl
+            const nucleusRadius = 15 + (atom.protons * 0.2);
+            const intensity = Math.min(255, 100 + (atom.protons * 8));
+            
+            // Kern mit Pulsation basierend auf EN
+            const pulse = 1 + (0.1 * Math.sin(atom.animationTime * 0.05 * atom.protons));
+            
+            // Kern zeichnen
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, nucleusRadius * pulse
+            );
+            gradient.addColorStop(0, `rgb(${intensity}, 100, 100)`);
+            gradient.addColorStop(1, `rgb(${intensity/2}, 50, 50)`);
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, nucleusRadius * pulse, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
+            
+            // Schalen und Elektronen zeichnen
+            for (let shell = 1; shell <= atom.shells; shell++) {
+                const shellRadius = baseRadius + (shell - 1) * shellSpacing;
+                const isValenceShell = shell === atom.shells;
+                const electronsOnThisShell = isValenceShell ? atom.valenceElectrons : Math.min(8, shell * 2);
+                
+                // Schalenkreis zeichnen
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, shellRadius, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(100, 150, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                
+                // Elektronen auf dieser Schale zeichnen
+                for (let i = 0; i < electronsOnThisShell; i++) {
+                    const speed = 0.002 * en;
+                    const angle = (atom.animationTime * speed) + (i * (2 * Math.PI / electronsOnThisShell));
+                    const electronX = centerX + Math.cos(angle) * shellRadius;
+                    const electronY = centerY + Math.sin(angle) * shellRadius;
+                    
+                    // Elektronengröße basierend auf EN
+                    const electronSize = 5 + (en * 0.3);
+                    
+                    // Wenn ein Elektron entfernt wird, zeichne es mit Animation
+                    if (atom.removingElectron && i === electronsOnThisShell - 1) {
+                        const scale = 1 + (atom.removalAnimationProgress * 2);
+                        const alpha = 1 - atom.removalAnimationProgress;
+                        
+                        ctx.beginPath();
+                        ctx.arc(electronX, electronY, electronSize * scale, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(255, 100, 100, ${alpha})`;
+                        ctx.fill();
+                        
+                        // Glüheffekt für entferntes Elektron
+                        ctx.beginPath();
+                        ctx.arc(electronX, electronY, electronSize * scale * 2, 0, Math.PI * 2);
+                        const glowGradient = ctx.createRadialGradient(
+                            electronX, electronY, 0,
+                            electronX, electronY, electronSize * scale * 2
+                        );
+                        glowGradient.addColorStop(0, `rgba(255, 100, 100, ${alpha * 0.7})`);
+                        glowGradient.addColorStop(1, 'rgba(255, 100, 100, 0)');
+                        ctx.fillStyle = glowGradient;
+                        ctx.fill();
+                    } else {
+                        ctx.beginPath();
+                        ctx.arc(electronX, electronY, electronSize, 0, Math.PI * 2);
+                        ctx.fillStyle = isValenceShell ? '#5fa0ff' : '#3a7bd5';
+                        ctx.fill();
+                        
+                        // Elektronenglimmen basierend auf EN
+                        ctx.beginPath();
+                        ctx.arc(electronX, electronY, electronSize * 1.5, 0, Math.PI * 2);
+                        const glowGradient = ctx.createRadialGradient(
+                            electronX, electronY, 0,
+                            electronX, electronY, electronSize * 1.5
+                        );
+                        glowGradient.addColorStop(0, `rgba(95, 160, 255, ${0.3 * en})`);
+                        glowGradient.addColorStop(1, 'rgba(95, 160, 255, 0)');
+                        ctx.fillStyle = glowGradient;
+                        ctx.fill();
+                    }
+                }
+            }
+            
+            // Anziehungskraft-Linien zeichnen (basierend auf EN)
+            const attractionLines = 5 + Math.floor(en * 3);
+            for (let i = 0; i < attractionLines; i++) {
+                const angle = (i * (2 * Math.PI / attractionLines)) + (atom.animationTime * 0.01);
+                const startX = centerX + Math.cos(angle) * nucleusRadius;
+                const startY = centerY + Math.sin(angle) * nucleusRadius;
+                
+                const outerShellRadius = baseRadius + (atom.shells - 1) * shellSpacing;
+                const endX = centerX + Math.cos(angle) * outerShellRadius;
+                const endY = centerY + Math.sin(angle) * outerShellRadius;
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = `rgba(255, 100, 100, ${0.2 + (0.3 * en)})`;
+                ctx.lineWidth = 1 + en;
+                ctx.stroke();
+            }
+            
+            // Freies Elektron zeichnen und bewegen
+            if (atom.freeElectron) {
+                const electron = atom.freeElectron;
+                
+                // Berechne Abstand zum Kern
+                const dx = centerX - electron.x;
+                const dy = centerY - electron.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Anziehung basierend auf Elektronegativität - je höher EN, desto schneller
+                // Bei EN < 1.0 kaum Anziehung
+                const attraction = en > 1.0 ? en * 2 : 0.1;
+                const outerShellRadius = baseRadius + (atom.shells - 1) * shellSpacing;
+                
+                // Bewege Elektron zum Kern nur wenn EN hoch genug
+                if (distance > outerShellRadius * 0.8 && en > 1.0) {
+                    electron.x += (dx / distance) * attraction;
+                    electron.y += (dy / distance) * attraction;
+                } else if (en <= 1.0) {
+                    // Bei niedriger EN bewegt sich das Elektron kaum oder gar nicht
+                    if (Math.random() < 0.02) { // Nur gelegentlich kleine Bewegung
+                        electron.x += (Math.random() - 0.5) * 0.5;
+                        electron.y += (Math.random() - 0.5) * 0.5;
+                    }
+                } else {
+                    // Elektron wurde eingefangen
+                    atom.freeElectron = null;
+                    atom.valenceElectrons++;
+                    electronInfo.textContent = `Valenzelektronen: ${atom.valenceElectrons}`;
+                    showStatus("Elektron eingefangen!", "#5fa0ff");
+                }
+                
+                // Zeichne das freie Elektron
+                const electronSize = 6;
+                ctx.beginPath();
+                ctx.arc(electron.x, electron.y, electronSize, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffeb3b';
+                ctx.fill();
+                
+                // Glüheffekt
+                ctx.beginPath();
+                ctx.arc(electron.x, electron.y, electronSize * 1.8, 0, Math.PI * 2);
+                const glowGradient = ctx.createRadialGradient(
+                    electron.x, electron.y, 0,
+                    electron.x, electron.y, electronSize * 1.8
+                );
+                glowGradient.addColorStop(0, 'rgba(255, 235, 59, 0.7)');
+                glowGradient.addColorStop(1, 'rgba(255, 235, 59, 0)');
+                ctx.fillStyle = glowGradient;
+                ctx.fill();
+            }
+            
+            // Entfernungsanimation aktualisieren
+            if (atom.removingElectron) {
+                atom.removalAnimationProgress += 0.05;
+                if (atom.removalAnimationProgress >= 1) {
+                    atom.removingElectron = false;
+                    atom.removalAnimationProgress = 0;
+                    atom.valenceElectrons--;
+                    electronInfo.textContent = `Valenzelektronen: ${atom.valenceElectrons}`;
+                }
+            }
+            
+            atom.animationTime++;
+            requestAnimationFrame(drawAtom);
+        }
+        
+        // Elektron hinzufügen
+        function addElectron() {
+            if (atom.freeElectron) {
+                showStatus("Es ist bereits ein freies Elektron vorhanden!", "#ff5f5f");
+                return;
+            }
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const baseRadius = 30;
+            const shellSpacing = (130 - baseRadius) / 6;
+            const outerShellRadius = baseRadius + (atom.shells - 1) * shellSpacing;
+            
+            // Startposition des Elektrons (außerhalb der äußersten Schale)
+            const angle = Math.random() * Math.PI * 2;
+            const startRadius = outerShellRadius * 1.5;
+            
+            atom.freeElectron = {
+                x: centerX + Math.cos(angle) * startRadius,
+                y: centerY + Math.sin(angle) * startRadius
+            };
+            
+            showStatus("Elektron hinzugefügt!", "#ffeb3b");
+        }
+        
+        // Elektron entfernen
+        function removeElectron() {
+            if (atom.valenceElectrons <= 0) {
+                showStatus("Atom hat keine Valenzelektronen mehr!", "#ff5f5f");
+                return;
+            }
+            
+            if (atom.removingElectron) {
+                return; // Animation läuft bereits
+            }
+            
+            const en = calculateEN(atom.protons, atom.shells);
+            
+            // Bei hoher EN ist es schwieriger, ein Elektron zu entfernen
+            if (en > 2.5) {
+                showStatus("Elektron kann nicht entfernt werden - EN zu hoch!", "#ff5f5f");
+                return;
+            }
+            
+            // Bei mittlerer EN ist es möglich aber nicht sicher
+            if (en > 1.5) {
+                if (Math.random() < 0.5) { // 50% Chance
+                    showStatus("Elektron konnte nicht entfernt werden!", "#ff5f5f");
+                    return;
+                }
+            }
+            
+            // Starte die Entfernungsanimation
+            atom.removingElectron = true;
+            atom.removalAnimationProgress = 0;
+            showStatus("Elektron wird entfernt...", "#ff7e5f");
+        }
+        
+        // Event-Listener für Schieberegler
+        protonSlider.addEventListener('input', function() {
+            atom.protons = parseInt(this.value);
+            atom.valenceElectrons = Math.min(atom.protons, 8); // Max 8 Valenzelektronen
+            protonValue.textContent = atom.protons;
+            electronInfo.textContent = `Valenzelektronen: ${atom.valenceElectrons}`;
+        });
+        
+        shellSlider.addEventListener('input', function() {
+            atom.shells = parseInt(this.value);
+            shellValue.textContent = atom.shells;
+        });
+        
+        // Event-Listener für Voreinstellungen
+        for (const [buttonId, preset] of Object.entries(presetButtons)) {
+            document.getElementById(buttonId).addEventListener('click', function() {
+                atom.protons = preset.protons;
+                atom.shells = preset.shells;
+                atom.valenceElectrons = Math.min(atom.protons, 8); // Max 8 Valenzelektronen
+                
+                protonSlider.value = atom.protons;
+                shellSlider.value = atom.shells;
+                
+                protonValue.textContent = atom.protons;
+                shellValue.textContent = atom.shells;
+                electronInfo.textContent = `Valenzelektronen: ${atom.valenceElectrons}`;
+            });
+        }
+        
+        // Event-Listener für Aktionstasten
+        addElectronBtn.addEventListener('click', addElectron);
+        removeElectronBtn.addEventListener('click', removeElectron);
+        
+        // Animation starten
+        drawAtom();
+    </script>
+</body>
+</html>
